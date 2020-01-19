@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Speech Synthesis</title>
+        <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+
+        <div class="voiceinator">
+
+            <h1>The Voiceinator 5000</h1>
+
+            <select name="voice" id="voices">
+                <option value="">Select A Voice</option>
+            </select>
+
+            <label for="rate">Rate:</label>
+            <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+
+            <label for="pitch">Pitch:</label>
+
+            <input name="pitch" type="range" min="0" max="2" step="0.1">
+            <textarea name="text">Hello! I love JavaScript 👍</textarea>
+            <button id="stop">Stop!</button>
+            <button id="speak">Speak</button>
+
+        </div>
+
+        <script>
+            var msg = new SpeechSynthesisUtterance();
+            let voices = [];
+            var voicesDropdown = document.querySelector('[name="voice"]');
+            var options = document.querySelectorAll('[type="range"], [name="text"]');
+            var speakButton = document.querySelector('#speak');
+            var stopButton = document.querySelector('#stop');
+            msg.txt = document.querySelector('[name="text"]').value; // text what we write in textArea
+
+            function populateVoice() {
+                voices = this.getVoices();
+                // opstions for voices
+                voicesDropdown.innerHTML = voices
+                    .filter(voice => voice.lang.includes('en')) // voices that will have only en in the word
+                    .map(voice => `<option value="${voice.name}"> ${voice.name} (${voice.lang})
+                    </option>`)
+                    .join('');
+                // wich name you want, and wich language you want (line 45)
+            };
+
+            function setVoice() {
+                // So it's going to loop over until it
+                // finds a voice.name that's equal to Alva (Alva je primer)
+                msg.voice = voices.find(voice => voice.name === this.value); 
+                // msg.voice = voices.find(function test(voice) {
+                //     return voice.name === this.value;
+                // });
+                toggle();   
+            }
+
+            function toggle(statOver = true) {
+                speechSynthesis.cancel();
+                if (statOver) {
+                    speechSynthesis.speak(msg);
+                }
+            }
+
+            function setOption() {
+                msg[this.name] = this.value;
+                toggle();
+            }
+
+            speechSynthesis.addEventListener('voiceschanged', populateVoice);
+            voicesDropdown.addEventListener('change', setVoice);
+            options.forEach(option => option.addEventListener('change', setOption));
+            speakButton.addEventListener('click', toggle);
+            stopButton.addEventListener('click', () => toggle(false)); 
+            
+
+        </script>
+    </body>
+</html>
